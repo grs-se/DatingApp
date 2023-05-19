@@ -11,9 +11,16 @@ export class NavComponent implements OnInit {
   loggedIn = false;
 
   constructor(private accountService: AccountService) {}
-  
+
   ngOnInit(): void {
-    throw new Error('Method not implemented.');
+    this.getCurrentUser();
+  }
+
+  getCurrentUser() {
+    this.accountService.currentUser$.subscribe({
+      next: user => this.loggedIn = !!user,
+      error: error => console.log(error)
+    })
   }
 
   login() {
@@ -27,6 +34,7 @@ export class NavComponent implements OnInit {
   }
 
   logout() {
+    this.accountService.logout();
     this.loggedIn = false;
   }
 }
