@@ -28,6 +28,9 @@ dependencies:
   bootstrap:
     specifier: ^5.1.3
     version: 5.1.3(@popperjs/core@2.11.7)
+  bootswatch:
+    specifier: ^5.2.3
+    version: 5.2.3
   font-awesome:
     specifier: ^4.7.0
     version: 4.7.0
@@ -3094,6 +3097,10 @@ packages:
       '@popperjs/core': ^2.10.2
     dependencies:
       '@popperjs/core': 2.11.7
+    dev: false
+
+  /bootswatch@5.2.3:
+    resolution: {integrity: sha512-tvnW15WoOY2sEp1uT1ITDQiJy2TekQa+K+Q28WDXibleIxsY0nAoC9IylbnUPD7Q5vkCIclOuBHLVBblJYYPSA==}
     dev: false
 
   /brace-expansion@1.1.11:
