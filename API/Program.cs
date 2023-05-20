@@ -1,23 +1,32 @@
 using API.Extensions;
+using API.Middleware;
 
-var builder = WebApplication.CreateBuilder(args);
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+        // Add services to the container.
 
-builder.Services.AddControllers();
-builder.Services.AddApplicationServices(builder.Configuration);
-builder.Services.AddIdentityServices(builder.Configuration);
+        builder.Services.AddControllers();
+        builder.Services.AddApplicationServices(builder.Configuration);
+        builder.Services.AddIdentityServices(builder.Configuration);
 
-var app = builder.Build();
+        var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-app.UseCors(builder => builder.AllowAnyHeader()
-.AllowAnyMethod()
-.WithOrigins("https://localhost:4200"));
+        // Configure the HTTP request pipeline.
+        app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseAuthentication();
-app.UseAuthorization();
+        app.UseCors(builder => builder.AllowAnyHeader()
+        .AllowAnyMethod()
+        .WithOrigins("https://localhost:4200"));
 
-app.MapControllers();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
-app.Run();
+        app.MapControllers();
+
+        app.Run();
+    }
+}
