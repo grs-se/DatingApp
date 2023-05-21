@@ -11,14 +11,12 @@ namespace API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-
         public UsersController(IUserRepository userRepository, IMapper mapper)
         {
-            _userRepository = userRepository;
             _mapper = mapper;
+            _userRepository = userRepository;
         }
 
-        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
         {
@@ -28,10 +26,10 @@ namespace API.Controllers
         }
 
         [HttpGet("{username}")]
+
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
             return await _userRepository.GetMemberAsync(username);
         }
-
     }
 }
