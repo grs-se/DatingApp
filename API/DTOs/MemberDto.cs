@@ -1,7 +1,4 @@
-﻿using API.Entities;
-using API.Extensions;
-
-namespace API.DTOs
+﻿namespace API.DTOs
 {
     public class MemberDto
     {
@@ -18,10 +15,5 @@ namespace API.DTOs
         public string City { get; set; }
         public string Country { get; set; }
         public List<PhotoDto> Photos { get; set; }
-
-        public int GetAge()
-        {
-            return DateOfBirth.CalculateAge();
-        }
     }
 }

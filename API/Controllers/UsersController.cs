@@ -9,24 +9,24 @@ namespace API.Controllers
 
     public class UsersController : BaseApiController
     {
-        private readonly IUserRepository userRepository;
+        private readonly IUserRepository _userRepository;
 
         public UsersController(IUserRepository userRepository)
         {
-            this.userRepository = userRepository;
+            _userRepository = userRepository;
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
         {
-            return Ok(await this.userRepository.GetUsersAsync());
+            return Ok(await _userRepository.GetUsersAsync());
         }
 
         [HttpGet("{username}")]
         public async Task<ActionResult<AppUser>> GetUser(string username)
         {
-            return await this.userRepository.GetUserByUsernameAsync(username);
+            return await _userRepository.GetUserByUsernameAsync(username);
         }
 
     }
