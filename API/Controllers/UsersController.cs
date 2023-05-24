@@ -34,7 +34,6 @@ namespace API.Controllers
         }
 
         [HttpGet("{username}")]
-
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
             return await _userRepository.GetMemberAsync(username);
@@ -75,8 +74,15 @@ namespace API.Controllers
 
             user.Photos.Add(photo);
             // if there are changes made into database map into PhotoDto from the photo
-            if (await _userRepository.SaveAllAsync()) return _mapper.Map<PhotoDto>(photo);
+            //if (await _userRepository.SaveAllAsync()) return _mapper.Map<PhotoDto>(photo);
             // if does not save successfully then return bad request
+
+            if (await _userRepository.SaveAllAsync())
+            {
+                return CreatedAtAction(nameof(GetUser), 
+                    new { username = user.UserName }, _mapper.Map<PhotoDto>(photo));
+            }
+
             return BadRequest("Problem adding photo");
         }
     }
