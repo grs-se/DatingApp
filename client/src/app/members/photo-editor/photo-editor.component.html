@@ -2,7 +2,12 @@
   <div class="col-2 mb-2" *ngFor="let photo of member.photos">
     <img src="{{photo.url}}" alt="photo of user" class="img-thumbnail mb-1" />
     <div class="text-center">
-      <button class="btn btn-sm">Main</button>
+      <button class="btn btn-sm"
+              [disabled]="photo.isMain"
+              (click)="setMainPhoto(photo)"
+              [ngClass]="photo.isMain ? 'btn-success active' : 'btn-outline-success'">
+        Main
+      </button>
       <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> </button>
     </div>
   </div>
@@ -19,7 +24,7 @@
          (fileOver)="fileOverBase($event)"
          [uploader]="uploader"
          class="card bg-faded p-3 text-center mb-3 my-drop-zone">
-         <i class="fa fa-upload fa-3x"></i>
+      <i class="fa fa-upload fa-3x"></i>
       Drop photos here
     </div>
 
