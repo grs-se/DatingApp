@@ -61,7 +61,7 @@ export class PhotoEditorComponent implements OnInit {
         }
       }
     })
-  } 
+  }
 
   initializeUploader() {
     this.uploader = new FileUploader({
@@ -90,5 +90,4 @@ export class PhotoEditorComponent implements OnInit {
       }
     }
   }
-
 }
