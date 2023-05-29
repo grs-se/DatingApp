@@ -46,6 +46,9 @@ dependencies:
   ngx-spinner:
     specifier: ^15.0.1
     version: 15.0.1(@angular/common@15.2.0)(@angular/core@15.2.0)
+  ngx-timeago:
+    specifier: ^2.0.0
+    version: 2.0.0(@angular/core@15.2.0)(rxjs@7.8.0)
   ngx-toastr:
     specifier: ^17.0.2
     version: 17.0.2(@angular/common@15.2.0)(@angular/core@15.2.0)(@angular/platform-browser@15.2.0)
@@ -5836,6 +5839,17 @@ packages:
     dependencies:
       '@angular/common': 15.2.0(@angular/core@15.2.0)(rxjs@7.8.0)
       '@angular/core': 15.2.0(rxjs@7.8.0)(zone.js@0.12.0)
+      tslib: 2.5.0
+    dev: false
+
+  /ngx-timeago@2.0.0(@angular/core@15.2.0)(rxjs@7.8.0):
+    resolution: {integrity: sha512-5kQZeTPCkegEcSooUu3W0BSOwvxEt1q6zjodwEOYoW/FxETC8Bk1zQF1QOPZLS+Nu3GLA+g1oPXMVBonM+CYQQ==}
+    peerDependencies:
+      '@angular/core': '>=10.0.0'
+      rxjs: '>=6.6.0'
+    dependencies:
+      '@angular/core': 15.2.0(rxjs@7.8.0)(zone.js@0.12.0)
+      rxjs: 7.8.0
       tslib: 2.5.0
     dev: false
 
