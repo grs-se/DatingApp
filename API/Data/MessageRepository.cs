@@ -65,8 +65,7 @@ namespace API.Data
                     m.RecipientUsername == recipientUsername &&
                     m.SenderUsername == currentUsername
                 )
-                // Most recent message first
-                .OrderByDescending(m => m.MessageSent)
+                .OrderBy(m => m.MessageSent)
                 .ToListAsync();
             // have the list in memory so don't need to go to database to get list of unread messages
             var unreadMessages = messages.Where(m => m.DateRead == null
