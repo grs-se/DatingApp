@@ -4,6 +4,7 @@ using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Data
 {
@@ -53,9 +54,36 @@ namespace API.Data
                 .CreateAsync(messages, messageParams.PageNumber, messageParams.PageSize);
         }
 
-        public Task<IEnumerable<MessageDto>> GetMessageThread(int currentUserId, int recipientId)
+        public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string recipientUsername)
         {
-            throw new NotImplementedException();
+            var messages = await _context.Messages
+                .Include(u => u.Sender).ThenInclude(p => p.Photos)
+                .Include(u => u.Recipient).ThenInclude(p => p.Photos)
+                .Where(
+                    m => m.RecipientUsername == currentUsername &&
+                    m.SenderUsername == recipientUsername ||
+                    m.RecipientUsername == recipientUsername &&
+                    m.SenderUsername == currentUsername
+                )
+                // Most recent message first
+                .OrderByDescending(m => m.MessageSent)
+                .ToListAsync();
+            // have the list in memory so don't need to go to database to get list of unread messages
+            var unreadMessages = messages.Where(m => m.DateRead == null
+                && m.RecipientUsername == currentUsername).ToList();
+
+            if (unreadMessages.Any())
+            {
+                foreach (var message in unreadMessages)
+                {
+                    // mark as read as soon as received by recipient
+                    message.DateRead = DateTime.UtcNow;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            return _mapper.Map<IEnumerable<MessageDto>>(messages);
         }
 
         public async Task<bool> SaveAllAsync()
