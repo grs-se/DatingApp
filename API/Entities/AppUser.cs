@@ -23,6 +23,6 @@ namespace API.Entities
         public List<Message> MessagesSent { get; set; }
         public List<Message> MessagesReceived { get; set; }
 
-        public ICollection<AppUserRole> UserRole { get; set; }
+        public ICollection<AppUserRole> UserRoles { get; set; }
     }
 }

@@ -23,9 +23,6 @@ namespace API.Data
                 using var hmac = new HMACSHA512();
 
                 user.UserName = user.UserName.ToLower();
-                // this is a course demo, we wouldn't normally seed data and generate passwords for them.
-                user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd"));
-                user.PasswordSalt = hmac.Key;
 
                 context.Users.Add(user);
             }
