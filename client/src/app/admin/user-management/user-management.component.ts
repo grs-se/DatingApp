@@ -37,7 +37,6 @@ export class UserManagementComponent implements OnInit {
       }
     }
     this.bsModalRef = this.modalService.show(RolesModalComponent, initialState);
-    this.bsModalRef.content!.closeBtnName = 'Close';
   }
 
 
