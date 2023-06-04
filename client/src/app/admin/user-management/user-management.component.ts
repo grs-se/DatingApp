@@ -12,6 +12,12 @@ import { AdminService } from '../../_services/admin.service';
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
   bsModalRef: BsModalRef<RolesModalComponent> = new BsModalRef<RolesModalComponent>();
+  // since only 3 roles ok to populate as strings of text rather than fetching from server
+  availableRoles = [
+    'Admin',
+    'Moderator',
+    'Member'
+  ]
   constructor(private adminService: AdminService, private modalService: BsModalService) {
 
   }
@@ -25,18 +31,31 @@ export class UserManagementComponent implements OnInit {
     })
   }
 
-  openRolesModal() {
-    const initialState: ModalOptions = {
+  openRolesModal(user: User) {
+    const config = {
+      class: 'modal-dialog-centered',
       initialState: {
-        list: [
-          'Do thing',
-          'Another thing',
-          'Something else'
-        ],
-        title: 'Test modal'
+        username: user.username,
+        availableRoles: this.availableRoles,
+        selectedRoles: [...user.roles]
       }
     }
-    this.bsModalRef = this.modalService.show(RolesModalComponent, initialState);
+    this.bsModalRef = this.modalService.show(RolesModalComponent, config);
+    this.bsModalRef.onHide?.subscribe({
+      next: () => {
+        const selectedRoles = this.bsModalRef.content?.selectedRoles;
+        if (!this.arrayEqual(selectedRoles!, user.roles)) {
+          this.adminService.updateUserRoles(user.username, selectedRoles!.join(',')).subscribe({
+            next: roles => user.roles = roles
+          })
+        }
+      }
+    })
+  }
+
+  private arrayEqual(arr1: any[], arr2: any[]) {
+    return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
+
   }
 
 
