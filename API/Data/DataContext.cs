@@ -9,8 +9,8 @@ namespace API.Data;
 // only reason we do this is because we are insisting using <int> for AppUser and AppRole entities
 // because we added a join table, AppUserRole, we need to specify everything there
 public class DataContext : IdentityDbContext<AppUser, AppRole, int,
-    IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
-    IdentityRoleClaim<int>, IdentityUserToken<int>>
+     IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
+     IdentityRoleClaim<int>, IdentityUserToken<int>>
 {
     public DataContext(DbContextOptions options) : base(options)
     {

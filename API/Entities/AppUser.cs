@@ -2,7 +2,6 @@
 
 namespace API.Entities
 {
-    // use <int> for Id property
     public class AppUser : IdentityUser<int>
     {
         public DateOnly DateOfBirth { get; set; }
