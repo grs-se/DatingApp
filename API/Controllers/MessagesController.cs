@@ -75,5 +75,29 @@ namespace API.Controllers
 
             return Ok(await _messageRepository.GetMessageThread(currentUsername, username));
         }
+
+        [HttpDelete("{id}")]
+        // delete method, don't need to return anything, client knows what is being deleted
+        public async Task<ActionResult> DeleteMessage(int id)
+        {
+            var username = User.GetUsername();
+
+            var message = await _messageRepository.GetMessage(id);
+
+            if (message.SenderUsername != username && message.RecipientUsername != username) 
+                return Unauthorized();
+
+            if (message.SenderUsername == username) message.SenderDeleted = true;
+            if (message.RecipientUsername == username) message.RecipientDeleted = true;
+            // only delete message from db if both sender and recpient decide to delete message, otherwise keep in db
+            if (message.SenderDeleted && message.SenderDeleted)
+            {
+                _messageRepository.DeleteMessage(message);
+            }
+
+            if (await _messageRepository.SaveAllAsync()) return Ok();
+
+            return BadRequest("Problem deleting the message");
+        }
     }
 }
