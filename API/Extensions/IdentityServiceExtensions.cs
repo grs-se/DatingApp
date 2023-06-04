@@ -12,7 +12,6 @@ namespace API.Extensions
         public static IServiceCollection AddIdentityServices(
             this IServiceCollection services,
             IConfiguration config)
-
         {
             services.AddIdentityCore<AppUser>(opt =>
             {
@@ -21,7 +20,7 @@ namespace API.Extensions
                 .AddRoles<AppRole>()
                 .AddRoleManager<RoleManager<AppRole>>()
                 .AddEntityFrameworkStores<DataContext>();
-
+            // Authentication should come before Authorization
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -34,6 +33,12 @@ namespace API.Extensions
                         ValidateAudience = false
                     };
                 });
+            // Authorization should come after Authentication
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+                opt.AddPolicy("ModeratePhotoRole", policy => policy.RequireRole("Admin", "Moderator"));
+            });
 
             return services;
         }
