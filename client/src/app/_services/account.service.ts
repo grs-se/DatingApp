@@ -36,6 +36,11 @@ export class AccountService {
   }
 
   setCurrentUser(user: User) {
+    user.roles = [];
+    const roles = this.getDecodedToken(user.token).role;
+    // if only 1 role then payload returns a string, if more than 1 then payload returns string[]
+    // either way, here we convert roles to string[].
+    Array.isArray(roles) ? user.roles = roles : user.roles.push(roles);
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
   }
@@ -43,5 +48,9 @@ export class AccountService {
   logout() {
     localStorage.removeItem('user');
     this.currentUserSource.next(null);
+  }
+  // only interest in middleware section of jwt [0,1,2]: 0 = Header, 1 = Payload, 2 = Signature
+  getDecodedToken(token: string) {
+    return JSON.parse(atob(token.split('.')[1]));
   }
 }
