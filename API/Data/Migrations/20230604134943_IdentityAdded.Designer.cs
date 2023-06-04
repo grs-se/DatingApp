@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230604133340_IdentityAdded")]
+    [Migration("20230604134943_IdentityAdded")]
     partial class IdentityAdded
     {
         /// <inheritdoc />

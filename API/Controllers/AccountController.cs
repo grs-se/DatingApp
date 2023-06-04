@@ -21,7 +21,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("register")] // api/account/register
+        [HttpPost("register")] // POST: api/account/register?username=dave&password=pwd
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await UserExists(registerDto.Username)) return BadRequest("Username is taken");
