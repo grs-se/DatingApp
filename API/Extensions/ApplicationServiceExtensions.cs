@@ -2,6 +2,7 @@ using API.Data;
 using API.Helpers;
 using API.Interfaces;
 using API.Services;
+using API.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Extensions
@@ -25,6 +26,10 @@ namespace API.Extensions
             services.AddScoped<ILikesRepository, LikesRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddSignalR();
+            // Singleton, rather than Scoped, because we do not want this to be detroyed
+            // once an Http request has been completed for instance, we need this to live
+            // as long as our application does.
+            services.AddSingleton<PresenceTracker>();
 
             return services;
         }
