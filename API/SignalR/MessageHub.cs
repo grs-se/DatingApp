@@ -43,6 +43,7 @@ namespace API.SignalR
             var groupName = GetGroupName(Context.User.GetUsername(), otherUser);
             // add user to group
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            await AddToGroup(groupName);
 
             var messages = await _messageRepository
                 .GetMessageThread(Context.User.GetUsername(), otherUser);
@@ -53,9 +54,10 @@ namespace API.SignalR
 
         // when a user actually disconnects from SignalR, then they are automatically removed
         // from any groups they belong to.
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
-            return base.OnDisconnectedAsync(exception);
+            await RemoveFromMessageGroup();
+            await base.OnDisconnectedAsync(exception);
         }
 
         public async Task SendMessage(CreateMessageDto createMessageDto)
@@ -84,12 +86,21 @@ namespace API.SignalR
                 Content = createMessageDto.Content
             };
 
+            var groupName = GetGroupName(sender.UserName, recipient.UserName);
+
+            var group = await _messageRepository.GetMessageGroup(groupName);
+            // check connections to see if we do have a username that matches
+            // the recipient username, and if so we can mark the message as read
+            if (group.Connections.Any(x => x.Username == recipient.UserName))
+            {
+                message.DateRead = DateTime.UtcNow;
+            }
+
             _messageRepository.AddMessage(message);
 
             if (await _messageRepository.SaveAllAsync())
             {
-                var group = GetGroupName(sender.UserName, recipient.UserName);
-                await Clients.Group(group).SendAsync("NewMessage", _mapper.Map<MessageDto>(message));
+                await Clients.Group(groupName).SendAsync("NewMessage", _mapper.Map<MessageDto>(message));
             }
         }
 
@@ -100,5 +111,35 @@ namespace API.SignalR
             return stringCompare ? $"{caller}-{other}" : $"{other}-{caller}";
 
         }
+
+        private async Task<bool> AddToGroup(string groupName)
+        {
+            var group = await _messageRepository.GetMessageGroup(groupName);
+            var connection = new Connection(Context.ConnectionId, Context.User.GetUsername()); 
+
+            if (group == null)
+            {
+                group = new Group(groupName);
+                _messageRepository.AddGroup(group);
+            }
+
+            group.Connections.Add(connection);
+
+            return await _messageRepository.SaveAllAsync();
+        }
+
+        private async Task RemoveFromMessageGroup()
+        {
+            // Only removing from database, not from message group and SignalR, 
+            // because when we do disconnect from SignalR, inside OnDisconnectedAsync, 
+            // then SignalR will automatically remove them from the SignalR group
+            // even though we don't have access to that information ourselves to query it.
+            var connection = await _messageRepository.GetConnection(Context.ConnectionId);
+            _messageRepository.RemoveConnection(connection);
+            await _messageRepository.SaveAllAsync();
+        }
     }
+
+    // if they are in the same group then we can mark them as read by the
+    // recipient of the message.
 }

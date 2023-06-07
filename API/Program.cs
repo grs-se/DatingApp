@@ -40,6 +40,14 @@ try
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
     await context.Database.MigrateAsync();
+    // Create a SQL query that will truncate (clear out) our table when we restart the app
+    // Be careful, this will execute a db query directly without using Entity FW.
+    // Note: in development with use of SQLLite "TRUNCATE TABLE" is not a valid method
+    // instead specify: "DELETE FROM"
+    //await context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE [Connections]");
+    await context.Database.ExecuteSqlRawAsync("DELETE FROM [Connections]");
+    // ok for small sites but could create problems as we start to scale
+    //context.Connections.RemoveRange(context.Connections);
     await Seed.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
