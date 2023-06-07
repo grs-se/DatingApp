@@ -7,17 +7,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace API.SignalR
-    // SignalR does not track who is in our group, for the same reason that it's not going
-    // to track is who is connected to SignalR, because we might have more than 1 SignalR
-    // server and it's got no way of interacting with its partners, 1,2,3,or 20 servers, 
-    // to know which of the users is in which of the groups. 
-    // This means we need to track who is in the group ourselves. 
+// SignalR does not track who is in our group, for the same reason that it's not going
+// to track is who is connected to SignalR, because we might have more than 1 SignalR
+// server and it's got no way of interacting with its partners, 1,2,3,or 20 servers, 
+// to know which of the users is in which of the groups. 
+// This means we need to track who is in the group ourselves. 
 
-    // The optimal solution for this is to use Redis and to distribute Redis over
-    // multiple servers. 
+// The optimal solution for this is to use Redis and to distribute Redis over
+// multiple servers. 
 
-    // In this case we will just use the Database, which is an alternative approach to having
-    // a multi server solution for SignalR. We need to create an entity to do this.
+// In this case we will just use the Database, which is an alternative approach to having
+// a multi server solution for SignalR. We need to create an entity to do this.
 {
     [Authorize]
     public class MessageHub : Hub
@@ -25,15 +25,18 @@ namespace API.SignalR
         private readonly IMessageRepository _messageRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IHubContext<PresenceHub> _presenceHub;
 
         public MessageHub(
             IMessageRepository messageRepository,
             IUserRepository userRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IHubContext<PresenceHub> presenceHub)
         {
             _messageRepository = messageRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _presenceHub = presenceHub;
         }
 
         public override async Task OnConnectedAsync()
@@ -87,13 +90,27 @@ namespace API.SignalR
             };
 
             var groupName = GetGroupName(sender.UserName, recipient.UserName);
-
+            // If they are not connected they won't receive any notification
+            // If they are inside the message group they get the message and we mark it as DateRead
+            // Otherwise, if they are in any other part of our application and not connected to
+            // the same message group as the user that is sending the message then 
+            // we allow them to receive a notification that they've had a new message. 
             var group = await _messageRepository.GetMessageGroup(groupName);
             // check connections to see if we do have a username that matches
             // the recipient username, and if so we can mark the message as read
             if (group.Connections.Any(x => x.Username == recipient.UserName))
             {
                 message.DateRead = DateTime.UtcNow;
+            }
+            else
+            {
+                var connections = await PresenceTracker.GetConnectionsForUser(recipient.UserName);
+                if (connections != null)
+                {
+                    await _presenceHub.Clients.Clients(connections).SendAsync("NewMessageReceived",
+                        // toast information
+                        new { username = sender.UserName, knownAs = sender.KnownAs });
+                }
             }
 
             _messageRepository.AddMessage(message);
@@ -115,7 +132,7 @@ namespace API.SignalR
         private async Task<bool> AddToGroup(string groupName)
         {
             var group = await _messageRepository.GetMessageGroup(groupName);
-            var connection = new Connection(Context.ConnectionId, Context.User.GetUsername()); 
+            var connection = new Connection(Context.ConnectionId, Context.User.GetUsername());
 
             if (group == null)
             {

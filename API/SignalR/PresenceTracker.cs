@@ -53,5 +53,21 @@ namespace API.SignalR
 
             return Task.FromResult(onlineUsers);
         }
+
+        public static Task<List<string>> GetConnectionsForUser(string username)
+        {
+            List<string> connectionIds;
+            // Accessing dictionary so lock it as not thread-safe
+            // don't want to encounter problems by two concurrent users accessing at same time
+            // scalability problems with this method
+            // Better off using db if no access to Redis. Redis optimum option.
+            // This method is suitable only for training.
+            lock (OnlineUsers)
+            {
+                connectionIds = OnlineUsers.GetValueOrDefault(username);
+            }
+
+            return Task.FromResult(connectionIds);
+        }
     }
 }
