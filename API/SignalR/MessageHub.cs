@@ -7,6 +7,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace API.SignalR
+    // SignalR does not track who is in our group, for the same reason that it's not going
+    // to track is who is connected to SignalR, because we might have more than 1 SignalR
+    // server and it's got no way of interacting with its partners, 1,2,3,or 20 servers, 
+    // to know which of the users is in which of the groups. 
+    // This means we need to track who is in the group ourselves. 
+
+    // The optimal solution for this is to use Redis and to distribute Redis over
+    // multiple servers. 
+
+    // In this case we will just use the Database, which is an alternative approach to having
+    // a multi server solution for SignalR. We need to create an entity to do this.
 {
     [Authorize]
     public class MessageHub : Hub

@@ -18,6 +18,9 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, int,
 
     public DbSet<UserLike> Likes { get; set; }
     public DbSet<Message> Messages { get; set; }
+    // Groups and Connections can be removed when Redis replaces database entites
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<Connection> Connections { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
