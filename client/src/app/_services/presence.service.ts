@@ -28,11 +28,17 @@ export class PresenceService {
     this.hubConnection.start().catch(error => console.log(error));
 
     this.hubConnection.on("UserIsOnline", username => {
-      this.toastr.info(username + ' has connected');
+      // update array, but instead of mutating, create new version of the array
+      // and replace the old one with the new one.
+      this.onlineUsers$.pipe(take(1)).subscribe({
+        next: usernames => this.onlineUsersSource.next([...usernames, username])
+      })
     })
 
     this.hubConnection.on("UserIsOffline", username => {
-      this.toastr.warning(username + ' has disconnected');
+      this.onlineUsers$.pipe(take(1)).subscribe({
+        next: usernames => this.onlineUsersSource.next(usernames.filter(x => x !== username))
+      })
     })
 
     this.hubConnection.on("GetOnlineUsers", usernames => {

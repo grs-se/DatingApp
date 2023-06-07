@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace API.SignalR
+﻿namespace API.SignalR
 {
     public class PresenceTracker
     {
@@ -8,39 +6,50 @@ namespace API.SignalR
         private static readonly Dictionary<string, List<string>> OnlineUsers =
             new Dictionary<string, List<string>>();
 
-        public Task UserConnected(string username, string connectionId)
+        // use boolean to specify whether user has genuinely come online (as in they
+        // didn't have any other connections) or they have gone offline and we have removed
+        // all of their connections from the dictionary
+        public Task<bool> UserConnected(string username, string connectionId)
         {
+            bool isOnline = false;
             lock (OnlineUsers)
             {
+                // if they have already got a connection and we're simply adding the connectionId
+                // to the key of 'username', then they haven't genuinely come online they've
+                // just added another connection and they were already online before...
                 if (OnlineUsers.ContainsKey(username))
                 {
                     OnlineUsers[username].Add(connectionId);
                 }
                 else
                 {
+                    // ...but if we're adding a new entry then we set the isOnline property = true;
                     OnlineUsers.Add(username, new List<string> { connectionId });
+                    isOnline = true;
                 }
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(isOnline);
         }
 
-        public Task UserDisconnected(string username, string connectionId)
+        public Task<bool> UserDisconnected(string username, string connectionId)
         {
+            bool isOffline = false;
+
             lock (OnlineUsers)
             {
-                if (!OnlineUsers.ContainsKey(username)) return Task.CompletedTask;
+                if (!OnlineUsers.ContainsKey(username)) return Task.FromResult(isOffline);
 
                 OnlineUsers[username].Remove(connectionId);
 
                 if (OnlineUsers[username].Count == 0)
                 {
                     OnlineUsers.Remove(username);
-
+                    isOffline = true;
                 }
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(isOffline);
         }
 
         public Task<string[]> GetOnlineUsers()
