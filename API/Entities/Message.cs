@@ -11,6 +11,9 @@
         public AppUser Recipient { get; set; }
         public string Content { get; set; }
         public DateTime? DateRead { get; set; }
+        // Whilst db stores the time as local time (UTC format)
+        // it doesn't return it back as local time
+        // a long-term issue in Entity FW.
         public DateTime MessageSent { get; set; } = DateTime.UtcNow;
         public bool SenderDeleted { get; set; }
         public bool RecipientDeleted { get; set; }

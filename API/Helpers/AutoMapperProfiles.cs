@@ -21,6 +21,12 @@ namespace API.Helpers
                     .FirstOrDefault(x => x.IsMain).Url))
                 .ForMember(d => d.RecipientPhotoUrl, o => o.MapFrom(s => s.Recipient.Photos
                     .FirstOrDefault(x => x.IsMain).Url));
+            // Whenever we return a message or something that has a date then we use AutoMapper
+            // to shape it into the object we return, so we can use AutoMapper to convert the date
+            // into a UTC Date, and that way we can get consistent dates back from API.
+            CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
+            CreateMap<DateTime?, DateTime?>().ConvertUsing(d => d.HasValue ?
+                DateTime.SpecifyKind(d.Value, DateTimeKind.Utc) : null);
         }
     }
 }
