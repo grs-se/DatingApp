@@ -64,15 +64,6 @@ namespace API.Controllers
             return messages;
         }
 
-        [HttpGet("thread/{username}")]
-        public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessageThread(string username)
-        {
-            // get user from token
-            var currentUsername = User.GetUsername();
-
-            return Ok(await _uow.MessageRepository.GetMessageThread(currentUsername, username));
-        }
-
         [HttpDelete("{id}")]
         // delete method, don't need to return anything, client knows what is being deleted
         public async Task<ActionResult> DeleteMessage(int id)
