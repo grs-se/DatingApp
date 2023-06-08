@@ -1,23 +1,34 @@
 ﻿using API.Interfaces;
+using AutoMapper;
 
 namespace API.Data
 {
     public class UnitOfWork : IUnitOfWork
     {
-        public IUserRepository UserRepository => throw new NotImplementedException();
+        private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public IMessageRepository MessageRepository => throw new NotImplementedException();
-
-        public ILikesRepository LikesRepository => throw new NotImplementedException();
-
-        public Task<bool> Complete()
+        public UnitOfWork(DataContext context, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _context = context;
+            _mapper = mapper;
+        }
+        public IUserRepository UserRepository => new UserRepository(_context, _mapper);
+
+        public IMessageRepository MessageRepository => new MessageRepository(_context, _mapper);
+
+        public ILikesRepository LikesRepository => new LikesRepository(_context);
+
+        public async Task<bool> Complete()
+        {
+            // as long as more than 0 changes this will return true
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public bool HasChanges()
         {
-            throw new NotImplementedException();
+            // returns a boolean if EFW is tracking any changes to entities in memory
+            return _context.ChangeTracker.HasChanges();
         }
     }
 }
