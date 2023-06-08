@@ -18,7 +18,11 @@ export class NavComponent implements OnInit {
 
   login() {
     this.accountService.login(this.model).subscribe({
-      next: () => this.router.navigateByUrl('/members'),
+      next: () => {
+        this.router.navigateByUrl('/members');
+        // reset form so user login details are not displayed after logout
+        this.model = {};
+      },
     });
   }
 
