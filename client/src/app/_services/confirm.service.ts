@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { map, Observable } from 'rxjs';
 import { ConfirmDialogComponent } from '../modals/confirm-dialog/confirm-dialog.component';
 
 @Injectable({
@@ -15,7 +16,7 @@ export class ConfirmService {
     message = "Are you sure you want to do this?",
     btnOkText = "Ok",
     btnCancelText = "Cancel"
-  ) {
+  ): Observable<boolean> {
     const config = {
       initialState: {
         title,
@@ -24,6 +25,12 @@ export class ConfirmService {
         btnCancelText
       }
     }
-    this.bsModalRef = this.modalService.show(ConfirmDialogComponent, config)
+    this.bsModalRef = this.modalService.show(ConfirmDialogComponent, config);
+    return this.bsModalRef.onHidden!.pipe(
+      map(() => {
+        // we know that inside bsModalRef.content.result, we initialised the value
+        // so we should not have problems here.
+        return this.bsModalRef!.content!.result
+      }))
   }
 }
