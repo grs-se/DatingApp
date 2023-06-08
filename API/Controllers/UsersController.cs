@@ -30,19 +30,18 @@ namespace API.Controllers
         public async Task<ActionResult<PagedList<MemberDto>>> GetUsers(
             [FromQuery] UserParams userParams)
         {
-            var gender = await _uow.UserRepository.GetUserGender(User.GetUsername());
-            userParams.CurrentUsername = User.GetUsername();
+            var currentUser = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+            userParams.CurrentUsername = currentUser.UserName;
 
             if (string.IsNullOrEmpty(userParams.Gender))
-                userParams.Gender = gender == "male" ? "female" : "male";
+            {
+                userParams.Gender = currentUser.Gender == "male" ? "female" : "male";
+            }
 
             var users = await _uow.UserRepository.GetMembersAsync(userParams);
 
-            Response.AddPaginationHeader(new PaginationHeader(
-                users.CurrentPage,
-                users.PageSize,
-                users.TotalCount,
-                users.TotalPages));
+            Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize,
+                users.TotalCount, users.TotalPages));
 
             return Ok(users);
         }
@@ -50,7 +49,9 @@ namespace API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-            return await _uow.UserRepository.GetMemberAsync(username);
+            var currentUsername = User.GetUsername();
+            return await _uow.UserRepository.GetMemberAsync(username,
+                isCurrentUser: currentUsername == username);
         }
 
         [HttpPut]
@@ -61,8 +62,10 @@ namespace API.Controllers
             if (user == null) return NotFound();
 
             _mapper.Map(memberUpdateDto, user);
+
             // because it's an update, client should have information about what just updated
             if (await _uow.Complete()) return NoContent();
+
             // nothing has been saved to database if we get to this line
             return BadRequest("Failed to update user");
         }
@@ -83,8 +86,6 @@ namespace API.Controllers
                 Url = result.SecureUrl.AbsoluteUri,
                 PublicId = result.PublicId,
             };
-
-            if (user.Photos.Count == 0) photo.IsMain = true;
 
             user.Photos.Add(photo);
             // if there are changes made into database map into PhotoDto from the photo
@@ -127,7 +128,7 @@ namespace API.Controllers
         {
             var user = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
 
-            var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
+            var photo = await _uow.PhotoRepository.GetPhotoById(photoId);
 
             if (photo == null) return NotFound();
 
