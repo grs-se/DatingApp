@@ -1,5 +1,4 @@
 <h1 align="center">Dating App</h1>
-<h2 align="center">Course Work from Neil Cummings' Udemy Course: 'Build an app with ASPNET Core and Angular from scratch'
 
 ## Live Demo Site
 
@@ -10,8 +9,8 @@
   </h3>
 
 - Visual Studio Developer Environment
-- Created the ASP.NET Core WebAPI and the Angular app using the DotNet CLI and the Angular CLI
-- Client side login and register functionality
+- Creating the ASP.NET Core WebAPI and the Angular app using the DotNet CLI and the Angular CLI
+- Adding Client side login and register functionality to the Angular application
 - Angular routing and security routes
 - Automapper in ASP.NET Core
 - UI Bootstrap
