@@ -10,8 +10,8 @@
   </h3>
 
 - Visual Studio Developer Environment
-- Creating the ASP.NET Core WebAPI and the Angular app using the DotNet CLI and the Angular CLI
-- Adding Client side login and register functionality to the Angular application
+- Created the ASP.NET Core WebAPI and the Angular app using the DotNet CLI and the Angular CLI
+- Client side login and register functionality
 - Angular routing and security routes
 - Automapper in ASP.NET Core
 - UI Bootstrap
